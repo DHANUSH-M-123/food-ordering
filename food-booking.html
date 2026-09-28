@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            min-height: 100vh;
+        }
+
+        /* Component 1: Header/Navigation */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #ff6b6b;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Component 2: Hero Slider */
+        .hero-slider {
+            position: relative;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide-content {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 2rem 3rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .slide-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .slide-content p {
+            font-size: 1.2rem;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        /* Component 3: Category Filter */
+        .category-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-section h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .category-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #ff6b6b;
+            background: white;
+            color: #ff6b6b;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Component 4: Food Menu Grid */
+        .menu-section {
+            margin-bottom: 2rem;
+        }
+
+        .menu-section h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .food-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .food-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .food-info {
+            padding: 1.5rem;
+        }
+
+        .food-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .food-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .food-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .food-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .add-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #ee5a5a;
+        }
+
+        /* Component 5: Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .cart-sidebar.active {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            margin-bottom: 2rem;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-details h4 {
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .cart-item-details p {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            border-top: 2px solid #f0f0f0;
+            padding-top: 1rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .checkout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .checkout-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Component 6: Checkout Form */
+        .checkout-section {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .checkout-section.active {
+            display: block;
+        }
+
+        .checkout-section h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .checkout-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .payment-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover, .payment-option.selected {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .place-order-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        /* Component 7: Order Confirmation Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 450px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-details {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .close-modal-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .checkout-form {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .hero-slider {
+                height: 300px;
+            }
+
+            .slide-content h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Component 1: Header/Navigation -->
+    <header class="header">
+        <div class="logo">🍔 FoodHub</div>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="#" onclick="showSection('home')">Home</a></li>
+            <li><a href="#" onclick="showSection('menu')">Menu</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+        <div class="cart-icon" onclick="toggleCart()">
+            🛒
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Component 2: Hero Slider (7 Slides) -->
+        <section class="hero-slider" id="heroSlider">
+            <div class="slide active" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Delicious Food Delivered</h2>
+                    <p>Order your favorite meals in minutes</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Fresh & Healthy</h2>
+                    <p>Quality ingredients for your wellbeing</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Pizza Paradise</h2>
+                    <p>Authentic Italian flavors at your doorstep</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1551024601-bec78aea704b?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Sweet Treats</h2>
+                    <p>Desserts that make life sweeter</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Salad Specials</h2>
+                    <p>Fresh greens for a healthy lifestyle</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>BBQ Grill</h2>
+                    <p>Smoked perfection in every bite</p>
+                </div>
+            </div>
+            <div class="slide" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=1200') center/cover;">
+                <div class="slide-content">
+                    <h2>Breakfast Anytime</h2>
+                    <p>Start your day right with us</p>
+                </div>
+            </div>
+            <div class="slider-dots" id="sliderDots"></div>
+        </section>
+
+        <!-- Component 3: Category Filter -->
+        <section class="category-section">
+            <h2>🍽️ Browse by Category</h2>
+            <div class="category-buttons">
+                <button class="category-btn active" onclick="filterCategory('all')">All</button>
+                <button class="category-btn" onclick="filterCategory('burger')">Burgers</button>
+                <button class="category-btn" onclick="filterCategory('pizza')">Pizza</button>
+                <button class="category-btn" onclick="filterCategory('dessert')">Desserts</button>
+                <button class="category-btn" onclick="filterCategory('salad')">Salads</button>
+                <button class="category-btn" onclick="filterCategory('drinks')">Drinks</button>
+            </div>
+        </section>
+
+        <!-- Component 4: Food Menu Grid -->
+        <section class="menu-section" id="menuSection">
+            <h2>🍴 Our Menu</h2>
+            <div class="menu-grid" id="menuGrid"></div>
+        </section>
+
+        <!-- Component 6: Checkout Form -->
+        <section class="checkout-section" id="checkoutSection">
+            <h2>📦 Checkout</h2>
+            <form class="checkout-form" onsubmit="placeOrder(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="customerName" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="customerPhone" required placeholder="Enter your phone">
+                </div>
+                <div class="form-group full-width">
+                    <label>Delivery Address</label>
+                    <textarea id="customerAddress" rows="3" required placeholder="Enter your full address"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>Payment Method</label>
+                    <div class="payment-options">
+                        <div class="payment-option selected" onclick="selectPayment(this, 'cod')">
+                            💵 Cash on Delivery
+                        </div>
+                        <div class="payment-option" onclick="selectPayment(this, 'card')">
+                            💳 Credit/Debit Card
+                        </div>
+                        <div class="payment-option" onclick="selectPayment(this, 'upi')">
+                            📱 UPI Payment
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>Special Instructions</label>
+                    <textarea id="specialInstructions" rows="2" placeholder="Any special requests?"></textarea>
+                </div>
+                <button type="submit" class="place-order-btn">Place Order</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- Component 5: Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Your Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-total">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">₹0</span>
+            </div>
+            <div class="total-row">
+                <span>Delivery Fee:</span>
+                <span>₹40</span>
+            </div>
+            <div class="total-row" style="margin-top: 0.5rem; color: #ff6b6b;">
+                <span>Total:</span>
+                <span id="grandTotal">₹40</span>
+            </div>
+            <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Component 7: Order Confirmation Modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="success-icon">🎉</div>
+            <h2>Order Placed Successfully!</h2>
+            <div class="order-details">
+                <p><strong>Order ID:</strong> #<span id="orderId"></span></p>
+                <p><strong>Name:</strong> <span id="confirmName"></span></p>
+                <p><strong>Total Amount:</strong> <span id="confirmTotal"></span></p>
+                <p><strong>Estimated Delivery:</strong> 30-45 minutes</p>
+            </div>
+            <p>Your delicious food is on the way!</p>
+            <button class="close-modal-btn" onclick="closeModal()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script>
+        // Food menu data
+        const foodItems = [
+            { id: 1, name: "Classic Burger", category: "burger", price: 199, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400", description: "Juicy beef patty with fresh vegetables" },
+            { id: 2, name: "Cheese Pizza", category: "pizza", price: 349, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400", description: "Loaded with mozzarella cheese" },
+            { id: 3, name: "Chocolate Cake", category: "dessert", price: 249, image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400", description: "Rich chocolate delight" },
+            { id: 4, name: "Caesar Salad", category: "salad", price: 179, image: "https://images.unsplash.com/photo-1546793665-c74683f339f1?w=400", description: "Fresh romaine lettuce with croutons" },
+            { id: 5, name: "Chicken Burger", category: "burger", price: 229, image: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400", description: "Crispy chicken with special sauce" },
+            { id: 6, name: "Pepperoni Pizza", category: "pizza", price: 399, image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400", description: "Spicy pepperoni with cheese" },
+            { id: 7, name: "Ice Cream Sundae", category: "dessert", price: 149, image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400", description: "Vanilla ice cream with toppings" },
+            { id: 8, name: "Greek Salad", category: "salad", price: 199, image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400", description: "Mediterranean flavors" },
+            { id: 9, name: "Veggie Burger", category: "burger", price: 179, image: "https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400", description: "Plant-based patty with veggies" },
+            { id: 10, name: "Margherita Pizza", category: "pizza", price: 299, image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400", description: "Classic Italian pizza" },
+            { id: 11, name: "Fresh Lemonade", category: "drinks", price: 99, image: "https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400", description: "Refreshing citrus drink" },
+            { id: 12, name: "Mango Smoothie", category: "drinks", price: 129, image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400", description: "Creamy mango delight" },
+            { id: 13, name: "Double Cheese Burger", category: "burger", price: 259, image: "https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400", description: "Double patty with extra cheese" },
+            { id: 14, name: "BBQ Chicken Pizza", category: "pizza", price: 429, image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400", description: "Smoked chicken with BBQ sauce" },
+            { id: 15, name: "Red Velvet Cake", category: "dessert", price: 279, image: "https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400", description: "Classic red velvet with cream cheese" },
+            { id: 16, name: "Fruit Salad", category: "salad", price: 159, image: "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400", description: "Fresh seasonal fruits" },
+            { id: 17, name: "Spicy Chicken Burger", category: "burger", price: 249, image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400", description: "Hot and spicy chicken patty" },
+            { id: 18, name: "Veggie Supreme Pizza", category: "pizza", price: 329, image: "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400", description: "Loaded with vegetables" },
+            { id: 19, name: "Donuts", category: "dessert", price: 179, image: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400", description: "Glazed donuts assortment" },
+            { id: 20, name: "Cobb Salad", category: "salad", price: 219, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400", description: "Classic American salad" },
+            { id: 21, name: "Mushroom Burger", category: "burger", price: 189, image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400", description: "Grilled mushrooms with cheese" },
+            { id: 22, name: "Hawaiian Pizza", category: "pizza", price: 379, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400", description: "Ham and pineapple classic" },
+            { id: 23, name: "Apple Pie", category: "dessert", price: 199, image: "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?w=400", description: "Homestyle apple pie" },
+            { id: 24, name: "Quinoa Salad", category: "salad", price: 209, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400", description: "Healthy quinoa with veggies" },
+            { id: 25, name: "Orange Juice", category: "drinks", price: 89, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400", description: "Fresh squeezed orange juice" },
+            { id: 26, name: "Iced Coffee", category: "drinks", price: 119, image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400", description: "Cold brew coffee" },
+            { id: 27, name: "Strawberry Shake", category: "drinks", price: 139, image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400", description: "Creamy strawberry milkshake" },
+            { id: 28, name: "Green Tea", category: "drinks", price: 79, image: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=400", description: "Refreshing green tea" }
+        ];
+
+        let cart = [];
+        let currentSlide = 0;
+        let selectedPayment = 'cod';
+        let orderData = {};
+
+        // Component 1: Navigation
+        function toggleMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+
+        function showSection(section) {
+            if (section === 'home') {
+                document.getElementById('heroSlider').style.display = 'block';
+                document.getElementById('menuSection').style.display = 'block';
+                document.getElementById('checkoutSection').classList.remove('active');
+            } else if (section === 'menu') {
+                document.getElementById('heroSlider').style.display = 'none';
+                document.getElementById('menuSection').style.display = 'block';
+                document.getElementById('checkoutSection').classList.remove('active');
+            }
+        }
+
+        // Component 2: Hero Slider
+        function initSlider() {
+            const slides = document.querySelectorAll('.slide');
+            const dotsContainer = document.getElementById('sliderDots');
+            
+            // Create dots
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                dot.onclick = () => goToSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+
+            // Auto slide
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                goToSlide(currentSlide);
+            }, 4000);
+        }
+
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+
+        // Component 3: Category Filter
+        function filterCategory(category) {
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderMenu(category);
+        }
+
+        // Component 4: Menu Grid
+        function renderMenu(category = 'all') {
+            const menuGrid = document.getElementById('menuGrid');
+            const filteredItems = category === 'all' 
+                ? foodItems 
+                : foodItems.filter(item => item.category === category);
+            
+            menuGrid.innerHTML = filteredItems.map(item => `
+                <div class="food-card">
+                    <img src="${item.image}" alt="${item.name}" class="food-image">
+                    <div class="food-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                        <div class="food-footer">
+                            <span class="food-price">₹${item.price}</span>
+                            <button class="add-btn" onclick="addToCart(${item.id})">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Component 5: Cart Sidebar
+        function addToCart(itemId) {
+            const item = foodItems.find(i => i.id === itemId);
+            const existingItem = cart.find(i => i.id === itemId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            
+            updateCart();
+            toggleCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            
+            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p style="text-align: center; color: #999;">Your cart is empty</p>';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-details">
+                            <h4>${item.name}</h4>
+                            <p>₹${item.price}</p>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                        <button class="close-cart" onclick="removeFromCart(${item.id})" style="font-size: 1rem;">🗑️</button>
+                    </div>
+                `).join('');
+            }
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('subtotal').textContent = `₹${subtotal}`;
+            document.getElementById('grandTotal').textContent = `₹${subtotal + 40}`;
+        }
+
+        function updateQuantity(itemId, change) {
+            const item = cart.find(i => i.id === itemId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(itemId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCart();
+        }
+
+        function toggleCart() {
+            document.getElementById('cartSidebar').classList.toggle('active');
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            toggleCart();
+            document.getElementById('menuSection').style.display = 'none';
+            document.getElementById('heroSlider').style.display = 'none';
+            document.getElementById('checkoutSection').classList.add('active');
+        }
+
+        // Component 6: Checkout Form
+        function selectPayment(element, method) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedPayment = method;
+        }
+
+        function placeOrder(event) {
+            event.preventDefault();
+            
+            orderData = {
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                address: document.getElementById('customerAddress').value,
+                payment: selectedPayment,
+                instructions: document.getElementById('specialInstructions').value,
+                items: [...cart],
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 40
+            };
+
+            const orderId = Math.floor(Math.random() * 1000000);
+            document.getElementById('orderId').textContent = orderId;
+            document.getElementById('confirmName').textContent = orderData.name;
+            document.getElementById('confirmTotal').textContent = `₹${orderData.total}`;
+            
+            document.getElementById('confirmationModal').classList.add('active');
+        }
+
+        // Component 7: Confirmation Modal
+        function closeModal() {
+            document.getElementById('confirmationModal').classList.remove('active');
+            
+            // Reset everything
+            cart = [];
+            updateCart();
+            orderData = {};
+            document.getElementById('checkout-form').reset();
+            
+            document.getElementById('checkoutSection').classList.remove('active');
+            document.getElementById('heroSlider').style.display = 'block';
+            document.getElementById('menuSection').style.display = 'block';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initSlider();
+            renderMenu();
+        });
+    </script>
+</body>
+</html>
